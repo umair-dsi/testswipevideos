@@ -2,6 +2,7 @@ package com.example.myapplication
 
 import android.content.Context
 import android.media.MediaPlayer
+import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -26,13 +27,24 @@ class VideoAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val vm: videomodel = videos[position]
-        holder.vv.setVideoPath(vm.videourl)
+        val uri = Uri.parse(vm.videourl)
+        holder.vv.setVideoURI(uri)
         holder.title.text = vm.title
         holder.desc.text = vm.desc
 
         holder.vv.setOnPreparedListener { mp ->
             holder.pbar.visibility = View.GONE
             mp?.start()
+
+            val videoRatio = mp.videoWidth / mp.videoHeight.toFloat()
+            val screenRatio = holder.vv.width / holder.vv.height.toFloat()
+
+            val scale = videoRatio/screenRatio
+            if(scale >= 1f)
+                holder.vv.scaleX = scale
+            else
+                holder.vv.scaleY = scale
+
         }
         holder.vv.setOnCompletionListener { mp ->
             mp.start()
