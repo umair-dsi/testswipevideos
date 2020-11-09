@@ -29,44 +29,11 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         window.setFlags(
-            WindowManager.LayoutParams.FLAG_FULLSCREEN,
-            WindowManager.LayoutParams.FLAG_FULLSCREEN
+            WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN,
+            WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN
         )
 
-        var v1 = videomodel(
-            "https://v77.tiktokcdn.com/0168a22c353ba4ac092af98ae8460b94/5fa77b19/video/tos/alisg/tos-alisg-pve-0037c001/505f5ec0966e4ea48c3fabe468056e63/",
-            "First Video",
-            "This is test"
-        )
-        videos.add(v1)
 
-        var v2 = videomodel(
-            "https://media.vrockk.mobi/india/videos/1601118053630-video.mp4",
-            "2nd Video",
-            "This is test"
-        )
-        videos.add(v2)
-
-        var v3 = videomodel(
-            "http://access.spaceimagingme.com:9090/vdoz/tiktok/v3.mp4",
-            "3rd Video",
-            "This is test"
-        )
-        videos.add(v3)
-
-        var v4 = videomodel(
-            "http://access.spaceimagingme.com:9090/vdoz/tiktok/v4.mp4",
-            "4th Video",
-            "This is test"
-        )
-        videos.add(v4)
-
-        var v5 = videomodel(
-            "http://access.spaceimagingme.com:9090/vdoz/tiktok/v5.mp4",
-            "5th Video",
-            "This is test"
-        )
-        videos.add(v5)
 
         viewpager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback(){
             override fun onPageScrollStateChanged(state: Int) {
@@ -84,6 +51,7 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
+        videos = VideoArrayUtils.videoArray()
         adapter = VideoAdapter(this, videos)
         viewpager.adapter = adapter
     }
