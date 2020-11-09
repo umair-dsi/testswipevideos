@@ -3,6 +3,7 @@ package com.example.myapplication
 import android.content.Context
 import android.media.MediaPlayer
 import android.net.Uri
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -28,7 +29,17 @@ class VideoAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
 
+        val vm = videos[position]
         holder.setData(context,videos[position], position)
+        holder.title.text = vm.title
+        holder.desc.text = vm.desc
+        Log.d(MainActivity.TAG, "recyclerview onBindViewHolder at position $position")
+            if(position == MainActivity.CURRENT_POSITION ){
+                (context as MainActivity).changeVideo(holder, vm)
+            }
+//            else
+//                (context as MainActivity).stopFeed()
+        holder.setIsRecyclable(false)
     }
 
     override fun onViewAttachedToWindow(holder: ViewHolder) {
@@ -47,29 +58,7 @@ class VideoAdapter(
         val playerView = itemView.playerView
 
         fun setData(context: Context, vm: videomodel, position: Int){
-            title.text = vm.title
-            desc.text = vm.desc
 
-//            vv.setOnPreparedListener { mp ->
-//                pbar.visibility = View.GONE
-//                mp?.start()
-//
-//                val videoRatio = mp.videoWidth / mp.videoHeight.toFloat()
-//                val screenRatio = vv.width / vv.height.toFloat()
-//
-//                val scale = videoRatio/screenRatio
-//                if(scale >= 1f)
-//                    vv.scaleX = scale
-//                else
-//                    vv.scaleY = scale
-//            }
-//            vv.setOnCompletionListener { mp ->
-//                mp.start()
-//            }
-            if(position == MainActivity.CURRENT_POSITION )
-                (context as MainActivity).changeVideo(this, vm)
-            else
-                (context as MainActivity).stopFeed()
         }
     }
 }
