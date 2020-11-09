@@ -6,17 +6,16 @@ import android.view.View
 import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.viewpager2.widget.ViewPager2
-import com.google.android.exoplayer2.ExoPlayer
-import com.google.android.exoplayer2.MediaItem
-import com.google.android.exoplayer2.Player
-import com.google.android.exoplayer2.SimpleExoPlayer
+import com.google.android.exoplayer2.*
+import com.google.android.exoplayer2.source.TrackGroupArray
+import com.google.android.exoplayer2.trackselection.TrackSelectionArray
 import com.google.android.exoplayer2.util.Util
 import kotlinx.android.synthetic.main.activity_main.*
 
 
 class MainActivity : AppCompatActivity() {
     companion object{
-        val TAG = "MainActivity"
+        val TAG = "MainActivityLog"
         var CURRENT_POSITION: Int =0
     }
     var videos: ArrayList<videomodel> = ArrayList()
@@ -40,14 +39,31 @@ class MainActivity : AppCompatActivity() {
                 super.onPageScrollStateChanged(state)
                 when(state){
                     ViewPager2.SCROLL_STATE_IDLE -> {
-                        Log.d(TAG, state.toString())
-                        if(CURRENT_POSITION != viewpager.currentItem){
-                            stopFeed()
-                        }
-                        CURRENT_POSITION = viewpager.currentItem
+                        Log.d(TAG, "onPageScrollStateChanged SCROLL_STATE_IDLE $state")
+                        playFeed()
+                    }
+                    ViewPager2.SCROLL_STATE_DRAGGING -> {
+                        pauseFeed()
+                    }
+                    ViewPager2.SCROLL_STATE_SETTLING -> {
 
                     }
                 }
+            }
+
+            override fun onPageSelected(position: Int) {
+                super.onPageSelected(position)
+                CURRENT_POSITION = position
+                adapter.notifyDataSetChanged()
+                Log.d(TAG, "onPageSelected CURRENT_POSITION = $position")
+            }
+
+            override fun onPageScrolled(
+                position: Int,
+                positionOffset: Float,
+                positionOffsetPixels: Int
+            ) {
+                super.onPageScrolled(position, positionOffset, positionOffsetPixels)
             }
         })
 
@@ -57,6 +73,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun changeVideo(holder: VideoAdapter.ViewHolder, vm: videomodel){
+        Log.d(TAG, "changeVideo called CURRENT_POSITION = $CURRENT_POSITION Current Video = ${vm.title}")
         if (player == null){
             initializePlayer()
         }
@@ -68,12 +85,13 @@ class MainActivity : AppCompatActivity() {
 
         val mediaItem: MediaItem = MediaItem.fromUri(vm.videourl)
         player!!.setMediaItem(mediaItem)
-
+        player!!.seekTo(0)
         prepareExoplayer()
     }
 
     private fun initializePlayer() {
         player = SimpleExoPlayer.Builder(this).build()
+        player!!.repeatMode = Player.REPEAT_MODE_ONE
     }
 
     private fun prepareExoplayer() {
@@ -81,6 +99,31 @@ class MainActivity : AppCompatActivity() {
             player!!.playWhenReady = true
             player!!.prepare()
 
+        } catch (e: Exception) {
+
+        }
+    }
+
+    fun playFeed() {
+        try {
+            player!!.play()
+        } catch (e: Exception) {
+
+        }
+    }
+
+    fun isPlaying(): Boolean {
+        try {
+            return player!!.isPlaying
+        } catch (e: Exception) {
+
+        }
+        return false
+    }
+
+    fun pauseFeed() {
+        try {
+            player!!.pause()
         } catch (e: Exception) {
 
         }
@@ -101,7 +144,7 @@ class MainActivity : AppCompatActivity() {
                 player!!.removeListener(playbackStateListener!!);
             player = null
         } catch (e: Exception) {
-            Log.d(TAG, e.toString())
+            Log.d(TAG, "releaseExoplayer exception $e")
         }
     }
 
@@ -159,7 +202,46 @@ class MainActivity : AppCompatActivity() {
                     stateString = "UNKNOWN_STATE             -"
                 }
             }
-            Log.d(TAG, "changed state to $stateString")
+            Log.d(TAG, "PlaybackStateListener changed state to $stateString")
         }
+
+         override fun onPlayerError(error: ExoPlaybackException) {
+             Log.d(TAG, "PlaybackStateListener onPlayerError $error")
+         }
+
+         override fun onIsLoadingChanged(isLoading: Boolean) {
+             Log.d(TAG, "PlaybackStateListener onIsLoadingChanged $isLoading")
+         }
+
+         override fun onTracksChanged(
+             trackGroups: TrackGroupArray,
+             trackSelections: TrackSelectionArray
+         ) {
+             Log.d(TAG, "PlaybackStateListener onTracksChanged")
+         }
+
+         override fun onPlaybackParametersChanged(playbackParameters: PlaybackParameters) {
+             Log.d(TAG, "PlaybackStateListener onPlaybackParametersChanged $playbackParameters")
+         }
+
+         override fun onPositionDiscontinuity(reason: Int) {
+             when(reason) {
+                 Player.DISCONTINUITY_REASON_INTERNAL -> {
+                     Log.d(TAG, "PlaybackStateListener onPositionDiscontinuity DISCONTINUITY_REASON_INTERNAL")
+                 }
+                 Player.DISCONTINUITY_REASON_AD_INSERTION -> {
+                     Log.d(TAG, "PlaybackStateListener onPositionDiscontinuity DISCONTINUITY_REASON_AD_INSERTION")
+                 }
+                 Player.DISCONTINUITY_REASON_PERIOD_TRANSITION -> {
+                     Log.d(TAG, "PlaybackStateListener onPositionDiscontinuity DISCONTINUITY_REASON_PERIOD_TRANSITION")
+                 }
+                 Player.DISCONTINUITY_REASON_SEEK -> {
+                     Log.d(TAG, "PlaybackStateListener onPositionDiscontinuity DISCONTINUITY_REASON_SEEK")
+                 }
+                 Player.DISCONTINUITY_REASON_SEEK_ADJUSTMENT -> {
+                     Log.d(TAG, "PlaybackStateListener onPositionDiscontinuity DISCONTINUITY_REASON_SEEK_ADJUSTMENT")
+                 }
+             }
+         }
     }
 }

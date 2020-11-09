@@ -30,15 +30,14 @@ class VideoAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
 
         val vm = videos[position]
-        holder.setData(context,videos[position], position)
+        holder.setData(context, videos[position], position)
         holder.title.text = vm.title
         holder.desc.text = vm.desc
         Log.d(MainActivity.TAG, "recyclerview onBindViewHolder at position $position")
-            if(position == MainActivity.CURRENT_POSITION ){
-                (context as MainActivity).changeVideo(holder, vm)
-            }
-//            else
-//                (context as MainActivity).stopFeed()
+        if (position == MainActivity.CURRENT_POSITION) {
+            (context as MainActivity).changeVideo(holder, vm)
+        } else
+//            (context as MainActivity).stopFeed()
         holder.setIsRecyclable(false)
     }
 
@@ -57,7 +56,7 @@ class VideoAdapter(
         val desc = itemView.textVideoDescription
         val playerView = itemView.playerView
 
-        fun setData(context: Context, vm: videomodel, position: Int){
+        fun setData(context: Context, vm: videomodel, position: Int) {
 
         }
     }
