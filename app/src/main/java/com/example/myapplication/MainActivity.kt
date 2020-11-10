@@ -174,6 +174,7 @@ class MainActivity : AppCompatActivity() {
         if (Util.SDK_INT >= 24) {
             releaseExoplayer();
         }
+        finish()
     }
 
      class PlaybackStateListener (
